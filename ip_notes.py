@@ -5,6 +5,7 @@ import os
 import argparse
 import re
 import sys
+import ipaddress
 from pprint import pprint
 
 # IP 字典
@@ -178,7 +179,7 @@ def show():
         print('(empty)')
     else:
         foreach_dict(ip_dict)
-    
+
     print()
     print('IP history set:')
     print('='*30)
@@ -187,6 +188,56 @@ def show():
         print('(empty)')
     else:
         foreach_set(ip_history)
+
+
+def sort_ip_dict():
+    ''' ip 排序 '''
+    global ip_dict
+    ip_obj = list()
+    for key, value in ip_dict.items():
+        # 将IP地址字符串转换为ipaddress.IPv4Address对象
+        ip_obj.append(ipaddress.IPv4Address(key))
+
+
+    # 对IP地址对象列表进行排序
+    sorted_ips = sorted(ip_obj)
+
+    # 打印排序后的IP地址
+    for i in sorted_ips:
+        ip = str(i)
+        note = ' '.join(ip_dict[ip])
+
+        # ipv4 最宽15个字符
+        ip = ip.ljust(15,' ')
+        print(f'{ip}    {note}')
+
+
+def sort_ip_history():
+    '''对历史IP数据排序并打印'''
+    global ip_history
+    ip_obj = list()
+
+    ip_his_list = list(ip_history)
+    #pprint(ip_his_list)
+
+    # 对IP地址对象列表进行排序
+    sorted_ips = sorted(ip_his_list, \
+                        key=lambda x:ipaddress.IPv4Address(x[0]))
+
+    #pprint(sorted_ips)
+
+    #打印排序后的IP地址
+    for i in sorted_ips:
+        ip = i[0]
+        note = ' '.join(i[1:])
+
+        # ipv4 最宽15个字符
+        ip = ip.ljust(15,' ')
+        print(f'{ip}    {note}')
+
+
+def dump_ip_current():
+    '''导出IP 备注信息'''
 
 
 def erase(data_file):
@@ -217,6 +268,8 @@ if __name__ == '__main__':
     parser.add_argument('--interactive', '-a', action='store_true', help='读取管道中的内容，并进行IP替换')
     parser.add_argument('--list', '-l', action='store_true', help='显示IP字典中的内容')
     parser.add_argument('--erase', '-e', action='store_true', help='清空数据文件内容')
+    parser.add_argument('--output_dict', '-od', action='store_true', help='输出IP字典信息')
+    parser.add_argument('--output_history', '-oh', action='store_true', help='输出IP历史数据')
 
 
     # 解析命令行参数
@@ -233,6 +286,8 @@ if __name__ == '__main__':
     interactive = args.interactive
     show_ip = args.list
     erase_data = args.erase
+    enable_output_dict = args.output_dict
+    enable_output_history = args.output_history
 
     # 反序列化，加载数据到字典
     load_data(data_file)
@@ -252,6 +307,14 @@ if __name__ == '__main__':
     # 重置数据文件
     if erase_data:
         erase(data_file)
+
+    # 输出 IP 字典数据
+    if enable_output_dict:
+        sort_ip_dict()
+
+    # 输出 IP 历史数据
+    if enable_output_history:
+        sort_ip_history()
 
     # 如果有文件输入，则存盘
     if ip_file:
