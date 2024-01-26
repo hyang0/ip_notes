@@ -20,7 +20,7 @@ root  pts/0  10.2.2.1 [小李的电脑]  Mon Jan 15 10:30 - 13:13  (02:42)
 
 更多使用场景可参考以下公众号链接：
 
-[会众号文章：查 IP 备注的小工具](https://mp.weixin.qq.com/s/HCPcJXS30Sx5GGYKZilesQ)
+[公众号文章：查 IP 备注的小工具](https://mp.weixin.qq.com/s/HCPcJXS30Sx5GGYKZilesQ)
 
 ## 帮助文档
 
