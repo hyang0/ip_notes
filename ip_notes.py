@@ -35,6 +35,14 @@ class MyIP:
     def __repr__(self):
         return f"{self.value[0]}\t{self.value[0:]}"
 
+def is_ipv4(ip):
+    '''检查是否是IPV4'''
+    try:
+        ipaddress.IPv4Address(ip)
+        return True
+    except ipaddress.AddressValueError:
+        return False
+
 
 def foreach_set(myset):
     '''遍历集合'''
@@ -94,6 +102,12 @@ def insert_ip_note(file_path):
                 continue
             ip_tmp = tuple(ip_line)
             k, v = ip_tmp[0], ip_tmp[1:]
+
+            if not is_ipv4(k):
+                print("Warning: no ipv4: ", end='')
+                pprint(k)
+                line = f.readline()
+                continue
 
             if k in ip_dict:
                 if v != ip_dict[k]:

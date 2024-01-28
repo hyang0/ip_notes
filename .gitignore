@@ -1,6 +1,15 @@
 # IP DB file
 *.pkl
 
+# ipdata
+ipdata/
+
+# compressed files
+*.zip
+*.tar
+*.7z
+*.bz2
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
