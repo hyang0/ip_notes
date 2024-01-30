@@ -6,6 +6,7 @@ import argparse
 import re
 import sys
 import ipaddress
+import platform
 from pprint import pprint
 
 # IP 字典
@@ -283,7 +284,18 @@ def search_arg(ip):
             print(f'{formated_key}    {note}')
 
 
+def change_default_encoding():
+    '''判断是否在 windows git-bash 下运行，是则使用 utf-8 编码'''
+    if platform.system() == 'Windows':
+        terminal = os.environ.get('TERM')
+        if terminal and 'xterm' in terminal:
+            sys.stdout.reconfigure(encoding='utf-8')
+
+
 if __name__ == '__main__':
+
+    # 如果是在 win git-bash 下运行，则使用 utf-8 编码替换标准输出默认编码
+    change_default_encoding()
 
     # 创建 ArgumentParser 对象
     parser = argparse.ArgumentParser(description='IP 备注')
