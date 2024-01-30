@@ -252,6 +252,8 @@ def sort_ip_history():
 
 def dump_ip_current():
     '''导出IP 备注信息'''
+    sort_ip_dict()
+    sort_ip_history()
 
 
 def erase(data_file):
@@ -271,6 +273,16 @@ def erase(data_file):
             print("无效的输入，请输入 'yes' 或 'no'。")
 
 
+def search_arg(ip):
+    '''在字典中搜索IP并打印'''
+    global ip_dict
+    for key, value in ip_dict.items():
+        if ip in key:
+            formated_key = key.ljust(15,' ')
+            note = ' '.join(value)
+            print(f'{formated_key}    {note}')
+
+
 if __name__ == '__main__':
 
     # 创建 ArgumentParser 对象
@@ -284,6 +296,7 @@ if __name__ == '__main__':
     parser.add_argument('--erase', '-e', action='store_true', help='清空数据文件内容')
     parser.add_argument('--output_dict', '-od', action='store_true', help='输出IP字典信息')
     parser.add_argument('--output_history', '-oh', action='store_true', help='输出IP历史数据')
+    parser.add_argument('--search', '-s', type=str, default='', help='在字典中搜索IP')
 
 
     # 解析命令行参数
@@ -302,6 +315,7 @@ if __name__ == '__main__':
     erase_data = args.erase
     enable_output_dict = args.output_dict
     enable_output_history = args.output_history
+    search_text = args.search
 
     # 反序列化，加载数据到字典
     load_data(data_file)
@@ -329,6 +343,9 @@ if __name__ == '__main__':
     # 输出 IP 历史数据
     if enable_output_history:
         sort_ip_history()
+
+    if search_text:
+        search_arg(search_text)
 
     # 如果有文件输入，则存盘
     if ip_file:
