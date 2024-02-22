@@ -28,7 +28,8 @@ root  pts/0  10.2.2.1 [小李的电脑]  Mon Jan 15 10:30 - 13:13  (02:42)
 $ chmod +x ip_notes.py
 $ ./ip_notes.py -h
 usage: ip_notes.py [-h] [--ip_file IP_FILE] [--data_file DATA_FILE]
-                   [--interactive] [--list] [--erase]
+                   [--interactive] [--list] [--erase] [--output_dict]
+                   [--output_history] [--search SEARCH]
 
 IP 备注
 
@@ -37,10 +38,16 @@ options:
   --ip_file IP_FILE, -i IP_FILE
                         IP 文件路径，文件内容格式：IP 备注
   --data_file DATA_FILE, -d DATA_FILE
-                        数据文件路径，默认数据文件：ip.pkl
+                        数据文件路径，默认数据文件：IP.pkl
   --interactive, -a     读取管道中的内容，并进行IP替换
   --list, -l            显示IP字典中的内容
   --erase, -e           清空数据文件内容
+  --output_dict, -od    输出IP字典信息
+  --output_history, -oh
+                        输出IP历史数据
+  --search SEARCH, -s SEARCH
+                        在字典中搜索IP
+
 ```
 
 首次使用需加载数据文件 

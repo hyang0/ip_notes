@@ -4,6 +4,9 @@
 # ipdata
 ipdata/
 
+# IDE
+.idea
+
 # compressed files
 *.zip
 *.tar

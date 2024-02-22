@@ -179,10 +179,16 @@ def replace_ip():
                 line = line[ip_end:]
             line_list.append(line)
             print(''.join(line_list), end='', flush=True)
-            line = f.readline()
+            try:
+                line = f.readline()
+            except:
+                pass
         else:
             print(line, end='', flush=True)
-            line = f.readline()
+            try:
+                line = f.readline()
+            except:
+                pass
 
 def show():
     '''显示 IP 字典内容'''
@@ -289,6 +295,7 @@ def change_default_encoding():
     if platform.system() == 'Windows':
         terminal = os.environ.get('TERM')
         if terminal and 'xterm' in terminal:
+            sys.stdin.reconfigure(encoding='utf-8')
             sys.stdout.reconfigure(encoding='utf-8')
 
 
@@ -302,7 +309,7 @@ if __name__ == '__main__':
 
     # 添加命令行参数
     parser.add_argument('--ip_file', '-i', type=str, default='', help='IP 文件路径，文件内容格式：IP 备注')
-    parser.add_argument('--data_file', '-d', type=str, default='IP.pkl', help='数据文件路径，默认数据文件：ip.pkl')
+    parser.add_argument('--data_file', '-d', type=str, default='IP.pkl', help='数据文件路径，默认数据文件：IP.pkl')
     parser.add_argument('--interactive', '-a', action='store_true', help='读取管道中的内容，并进行IP替换')
     parser.add_argument('--list', '-l', action='store_true', help='显示IP字典中的内容')
     parser.add_argument('--erase', '-e', action='store_true', help='清空数据文件内容')

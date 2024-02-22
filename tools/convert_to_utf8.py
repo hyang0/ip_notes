@@ -1,6 +1,16 @@
 import argparse
 import chardet
 import sys
+import os
+import platform
+
+def change_default_encoding():
+    '''判断是否在 windows git-bash 下运行，是则使用 utf-8 编码'''
+    if platform.system() == 'Windows':
+        terminal = os.environ.get('TERM')
+        if terminal and 'xterm' in terminal:
+            sys.stdin.reconfigure(encoding='utf-8')
+            sys.stdout.reconfigure(encoding='utf-8')
 
 def detect_file_encoding(file_path):
     with open(file_path, 'rb') as file:
@@ -32,6 +42,7 @@ def convert_file_encoding(input_file_path, output_file_path):
             sys.stdout.write(content)
 
 def main():
+    change_default_encoding()
     parser = argparse.ArgumentParser(description='Convert file encoding to UTF-8')
     parser.add_argument('-i', '--input', help='Input file path. If not provided, read from standard input.')
     parser.add_argument('-o', '--output', help='Output file path. If not provided, write to standard output.')

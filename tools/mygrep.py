@@ -2,12 +2,14 @@ import argparse
 import re
 import sys
 import platform
+import os
 
 def change_default_encoding():
     '''判断是否在 windows git-bash 下运行，是则使用 utf-8 编码'''
     if platform.system() == 'Windows':
         terminal = os.environ.get('TERM')
         if terminal and 'xterm' in terminal:
+            sys.stdin.reconfigure(encoding='utf-8')
             sys.stdout.reconfigure(encoding='utf-8')
 
 def grep(pattern, file, use_regex):
