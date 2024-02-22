@@ -36,8 +36,9 @@ class MyIP:
     def __repr__(self):
         return f"{self.value[0]}\t{self.value[0:]}"
 
+
 def is_ipv4(ip):
-    '''检查是否是IPV4'''
+    """检查是否是IPV4"""
     try:
         ipaddress.IPv4Address(ip)
         return True
@@ -46,7 +47,7 @@ def is_ipv4(ip):
 
 
 def foreach_set(myset):
-    '''遍历集合'''
+    """遍历集合"""
     iterator = iter(myset)
 
     # 使用while循环和next函数遍历集合中的元素
@@ -59,13 +60,13 @@ def foreach_set(myset):
 
 
 def foreach_dict(mydict):
-    '''遍历字典'''
+    """遍历字典"""
     for key, value in mydict.items():
         print(f"{key}: {value}")
 
 
 def load_data(file_path):
-    '''装载数据到字典'''
+    """装载数据到字典"""
     global ip_dict, ip_history
     if os.path.exists(file_path):
         with open(file_path, 'rb') as file:
@@ -74,16 +75,16 @@ def load_data(file_path):
 
 
 def save_data(file_path):
-    '''存盘'''
+    """存盘"""
     global ip_dict, ip_history
     data = [ip_dict, ip_history]
-    #pprint(data)
+    # pprint(data)
     with open(file_path, 'wb') as file:
         pickle.dump(data, file)
 
 
 def insert_ip_note(file_path):
-    '''装载原始数据文件'''
+    """装载原始数据文件"""
     global ip_dict, ip_history
 
     # 检查文件是否存在
@@ -93,7 +94,7 @@ def insert_ip_note(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         line = f.readline()
         while line:
-            #pprint(line)
+            # pprint(line)
 
             ip_line = line.split()
 
@@ -112,19 +113,19 @@ def insert_ip_note(file_path):
 
             if k in ip_dict:
                 if v != ip_dict[k]:
-                    #pprint(ip_dict[k])
+                    # pprint(ip_dict[k])
                     old_ip = ip_dict.pop(k)
-                    ip_dict.update({k:v})
-                    ip_history.add((k,)+old_ip)
+                    ip_dict.update({k: v})
+                    ip_history.add((k,) + old_ip)
             else:
-                ip_dict.update({k:v})
+                ip_dict.update({k: v})
 
             # pprint(line.split())
             line = f.readline()
 
 
 def clean_ip_history():
-    '''删历史IP'''
+    """删历史IP"""
     history_ip = '192.168.1.1'
     list_to_remove = []
     for item in ip_history:
@@ -136,32 +137,33 @@ def clean_ip_history():
 
 
 def regex(pattern, line):
-    '''匹配正则表达式'''
+    """匹配正则表达式"""
     match = pattern.findall(line)
     if not match:
         return
-    return(match)
+    return match
 
 
 def regex_pos(pattern, line):
-    '''返回匹配的IP位置'''
+    """返回匹配的IP位置"""
     match = pattern.search(line)
     if not match:
         return len(line)
-    return(match.end())
+    return match.end()
 
 
 def search_ip_dict(s):
     global ip_dict
     if s in ip_dict:
-        return s + ' [' + ' '.join(ip_dict[s]) +']'
+        return s + ' [' + ' '.join(ip_dict[s]) + ']'
     else:
         return s
 
 
 def replace_ip():
-    '''替换字符串中的IP为带备注的版本'''
-    pattern_ip = re.compile(r'((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))')
+    """替换字符串中的IP为带备注的版本"""
+    pattern_ip = re.compile(
+        r'((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))')
     f = sys.stdin
     line = f.readline()
     while line:
@@ -190,11 +192,12 @@ def replace_ip():
             except:
                 pass
 
+
 def show():
-    '''显示 IP 字典内容'''
+    """显示 IP 字典内容"""
 
     print('IP dict:')
-    print('-'*30)
+    print('-' * 30)
 
     if not ip_dict:
         print('(empty)')
@@ -203,7 +206,7 @@ def show():
 
     print()
     print('IP history set:')
-    print('='*30)
+    print('=' * 30)
 
     if not ip_history:
         print('(empty)')
@@ -212,13 +215,12 @@ def show():
 
 
 def sort_ip_dict():
-    ''' ip 排序 '''
+    """ ip 排序 """
     global ip_dict
     ip_obj = list()
     for key, value in ip_dict.items():
         # 将IP地址字符串转换为ipaddress.IPv4Address对象
         ip_obj.append(ipaddress.IPv4Address(key))
-
 
     # 对IP地址对象列表进行排序
     sorted_ips = sorted(ip_obj)
@@ -229,42 +231,41 @@ def sort_ip_dict():
         note = ' '.join(ip_dict[ip])
 
         # ipv4 最宽15个字符
-        ip = ip.ljust(15,' ')
+        ip = ip.ljust(15, ' ')
         print(f'{ip}    {note}')
 
 
 def sort_ip_history():
-    '''对历史IP数据排序并打印'''
+    """对历史IP数据排序并打印"""
     global ip_history
     ip_obj = list()
 
     ip_his_list = list(ip_history)
-    #pprint(ip_his_list)
+    # pprint(ip_his_list)
 
     # 对IP地址对象列表进行排序
-    sorted_ips = sorted(ip_his_list, \
-                        key=lambda x:ipaddress.IPv4Address(x[0]))
+    sorted_ips = sorted(ip_his_list, key=lambda x: ipaddress.IPv4Address(x[0]))
 
-    #pprint(sorted_ips)
+    # pprint(sorted_ips)
 
-    #打印排序后的IP地址
+    # 打印排序后的IP地址
     for i in sorted_ips:
         ip = i[0]
         note = ' '.join(i[1:])
 
         # ipv4 最宽15个字符
-        ip = ip.ljust(15,' ')
+        ip = ip.ljust(15, ' ')
         print(f'{ip}    {note}')
 
 
 def dump_ip_current():
-    '''导出IP 备注信息'''
+    """导出IP 备注信息"""
     sort_ip_dict()
     sort_ip_history()
 
 
 def erase(data_file):
-    '''重置数据文件'''
+    """重置数据文件"""
     global ip_dict, ip_history
     while True:
         user_input = input("请确认操作 (yes/no): ").lower()  # 将输入转换为小写，以便不区分大小写
@@ -281,17 +282,17 @@ def erase(data_file):
 
 
 def search_arg(ip):
-    '''在字典中搜索IP并打印'''
+    """在字典中搜索IP并打印"""
     global ip_dict
     for key, value in ip_dict.items():
         if ip in key:
-            formated_key = key.ljust(15,' ')
+            formated_key = key.ljust(15, ' ')
             note = ' '.join(value)
             print(f'{formated_key}    {note}')
 
 
 def change_default_encoding():
-    '''判断是否在 windows git-bash 下运行，是则使用 utf-8 编码'''
+    """判断是否在 windows git-bash 下运行，是则使用 utf-8 编码"""
     if platform.system() == 'Windows':
         terminal = os.environ.get('TERM')
         if terminal and 'xterm' in terminal:
@@ -317,13 +318,11 @@ if __name__ == '__main__':
     parser.add_argument('--output_history', '-oh', action='store_true', help='输出IP历史数据')
     parser.add_argument('--search', '-s', type=str, default='', help='在字典中搜索IP')
 
-
     # 解析命令行参数
     args = parser.parse_args()
 
     # 检查是否有传递任何参数，同时检查是否使用了默认参数
-    if not any(vars(args).values()) or \
-       all(arg == parser.get_default(name) for name, arg in vars(args).items()):
+    if not any(vars(args).values()) or all(arg == parser.get_default(name) for name, arg in vars(args).items()):
         # 如果没有传递参数或者使用了默认参数，打印帮助信息
         parser.print_help()
 

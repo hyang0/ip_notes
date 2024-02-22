@@ -7,7 +7,7 @@ import sys
 
 
 def change_default_encoding():
-    '''判断是否在 windows git-bash 下运行，是则使用 utf-8 编码'''
+    """判断是否在 windows git-bash 下运行，是则使用 utf-8 编码"""
     if platform.system() == 'Windows':
         terminal = os.environ.get('TERM')
         if terminal and 'xterm' in terminal:

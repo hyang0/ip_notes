@@ -4,13 +4,15 @@ import sys
 import os
 import platform
 
+
 def change_default_encoding():
-    '''判断是否在 windows git-bash 下运行，是则使用 utf-8 编码'''
+    """判断是否在 windows git-bash 下运行，是则使用 utf-8 编码"""
     if platform.system() == 'Windows':
         terminal = os.environ.get('TERM')
         if terminal and 'xterm' in terminal:
             sys.stdin.reconfigure(encoding='utf-8')
             sys.stdout.reconfigure(encoding='utf-8')
+
 
 def detect_file_encoding(file_path):
     with open(file_path, 'rb') as file:
@@ -21,6 +23,7 @@ def detect_file_encoding(file_path):
                 break
         detector.close()
     return detector.result['encoding']
+
 
 def convert_file_encoding(input_file_path, output_file_path):
     # 检测输入文件的编码
@@ -40,6 +43,7 @@ def convert_file_encoding(input_file_path, output_file_path):
                 output_file.write(content)
         else:
             sys.stdout.write(content)
+
 
 def main():
     change_default_encoding()
@@ -63,6 +67,7 @@ def main():
             print(f"文件已转换: 标准输入 -> {args.output}")
         else:
             sys.stdout.write(input_content)
+
 
 if __name__ == "__main__":
     main()
