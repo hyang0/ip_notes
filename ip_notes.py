@@ -8,6 +8,7 @@ import sys
 import ipaddress
 import platform
 from pprint import pprint
+import io
 
 # IP 字典
 ip_dict = dict()
@@ -46,9 +47,9 @@ def is_ipv4(ip):
         return False
 
 
-def foreach_set(myset):
+def foreach_set(ip_set):
     """遍历集合"""
-    iterator = iter(myset)
+    iterator = iter(ip_set)
 
     # 使用while循环和next函数遍历集合中的元素
     while True:
@@ -170,7 +171,6 @@ def replace_ip():
         ret = regex(pattern_ip, line)
         if ret:
             line_list = []
-            ip_end = len(line)
             for i in ret:
                 ip1 = search_ip_dict(i)
 
@@ -238,7 +238,6 @@ def sort_ip_dict():
 def sort_ip_history():
     """对历史IP数据排序并打印"""
     global ip_history
-    ip_obj = list()
 
     ip_his_list = list(ip_history)
     # pprint(ip_his_list)
@@ -264,7 +263,7 @@ def dump_ip_current():
     sort_ip_history()
 
 
-def erase(data_file):
+def erase(data_file_path):
     """重置数据文件"""
     global ip_dict, ip_history
     while True:
@@ -272,7 +271,7 @@ def erase(data_file):
         if user_input == 'yes':
             ip_dict = dict()
             ip_history = set()
-            save_data(data_file)
+            save_data(data_file_path)
             break
         elif user_input == 'no':
             print("取消操作。")
@@ -286,9 +285,9 @@ def search_arg(ip):
     global ip_dict
     for key, value in ip_dict.items():
         if ip in key:
-            formated_key = key.ljust(15, ' ')
+            formatted_key = key.ljust(15, ' ')
             note = ' '.join(value)
-            print(f'{formated_key}    {note}')
+            print(f'{formatted_key}    {note}')
 
 
 def change_default_encoding():
@@ -296,8 +295,8 @@ def change_default_encoding():
     if platform.system() == 'Windows':
         terminal = os.environ.get('TERM')
         if terminal and 'xterm' in terminal:
-            sys.stdin.reconfigure(encoding='utf-8')
-            sys.stdout.reconfigure(encoding='utf-8')
+            sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
 if __name__ == '__main__':
