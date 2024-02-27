@@ -9,6 +9,7 @@ import ipaddress
 import platform
 from pprint import pprint
 import io
+import wcwidth
 
 # IP 字典
 ip_dict = dict()
@@ -299,6 +300,36 @@ def change_default_encoding():
             sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
+def summary():
+    """统计IP分类"""
+    tags = dict()
+    global ip_dict
+    for key, value in ip_dict.items():
+        for tag in value:
+            if tag in tags.keys():
+                tags[tag].append(key)
+            else:
+                tags.update({tag: [key]})
+
+    sorted_items = sorted(tags.items(), key=lambda x: len(x[1]), reverse=True)
+    for key, value in sorted_items:
+        max_length = 15
+        if len(key) > max_length:
+            truncated_s = key[:max_length - 3] + "..."
+        else:
+            truncated_s = key
+        print("{}  {}".format(align_text(truncated_s, 30), len(value)))
+
+
+def align_text(text, width):
+    """中文对齐"""
+    text_width = wcwidth.wcswidth(text)
+    if text_width < width:
+        return text + ' ' * (width - text_width)
+    else:
+        return text
+
+
 if __name__ == '__main__':
 
     # 如果是在 win git-bash 下运行，则使用 utf-8 编码替换标准输出默认编码
@@ -316,6 +347,7 @@ if __name__ == '__main__':
     parser.add_argument('--output_dict', '-od', action='store_true', help='输出IP字典信息')
     parser.add_argument('--output_history', '-oh', action='store_true', help='输出IP历史数据')
     parser.add_argument('--search', '-s', type=str, default='', help='在字典中搜索IP')
+    parser.add_argument('--summary', '-m', action='store_true', help='统计 IP 分类')
 
     # 解析命令行参数
     args = parser.parse_args()
@@ -333,6 +365,7 @@ if __name__ == '__main__':
     enable_output_dict = args.output_dict
     enable_output_history = args.output_history
     search_text = args.search
+    enable_summary = args.summary
 
     # 反序列化，加载数据到字典
     load_data(data_file)
@@ -363,6 +396,9 @@ if __name__ == '__main__':
 
     if search_text:
         search_arg(search_text)
+
+    if enable_summary:
+        summary()
 
     # 如果有文件输入，则存盘
     if ip_file:
