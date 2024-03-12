@@ -11,32 +11,14 @@ from pprint import pprint
 import io
 import wcwidth
 
+# 版本信息
+version = '0.1'
+
 # IP 字典
 ip_dict = dict()
 
 # IP 备注历史
 ip_history = set()
-
-
-class MyIP:
-    def __init__(self, value):
-        self.value = value
-
-    def __hash__(self):
-        # 返回对象的哈希值
-        return hash(self.value[0])
-
-    def __eq__(self, other):
-        # 比较两个对象是否相等
-        if isinstance(other, MyIP):
-            return self.value == other.value
-        return False
-
-    def __str__(self):
-        return f"{self.value[0]} {' '.join(self.value[0:])}"
-
-    def __repr__(self):
-        return f"{self.value[0]}\t{self.value[0:]}"
 
 
 def is_ipv4(ip):
@@ -78,7 +60,6 @@ def load_data(file_path):
 
 def save_data(file_path):
     """存盘"""
-    global ip_dict, ip_history
     data = [ip_dict, ip_history]
     # pprint(data)
     with open(file_path, 'wb') as file:
@@ -155,7 +136,6 @@ def regex_pos(pattern, line):
 
 
 def search_ip_dict(s):
-    global ip_dict
     if s in ip_dict:
         return s + ' [' + ' '.join(ip_dict[s]) + ']'
     else:
@@ -217,7 +197,6 @@ def show():
 
 def sort_ip_dict():
     """ ip 排序 """
-    global ip_dict
     ip_obj = list()
     for key, value in ip_dict.items():
         # 将IP地址字符串转换为ipaddress.IPv4Address对象
@@ -238,8 +217,6 @@ def sort_ip_dict():
 
 def sort_ip_history():
     """对历史IP数据排序并打印"""
-    global ip_history
-
     ip_his_list = list(ip_history)
     # pprint(ip_his_list)
 
@@ -283,7 +260,6 @@ def erase(data_file_path):
 
 def search_arg(ip):
     """在字典中搜索IP并打印"""
-    global ip_dict
     for key, value in ip_dict.items():
         if ip in key:
             formatted_key = key.ljust(15, ' ')
@@ -348,6 +324,7 @@ if __name__ == '__main__':
     parser.add_argument('--output_history', '-oh', action='store_true', help='输出IP历史数据')
     parser.add_argument('--search', '-s', type=str, default='', help='在字典中搜索IP')
     parser.add_argument('--summary', '-m', action='store_true', help='统计 IP 分类')
+    parser.add_argument('--version', '-v', action='store_true', help='显示版本信息')
 
     # 解析命令行参数
     args = parser.parse_args()
@@ -403,3 +380,6 @@ if __name__ == '__main__':
     # 如果有文件输入，则存盘
     if ip_file:
         save_data(data_file)
+
+    if args.version:
+        print(f'ip_notes {version}')
