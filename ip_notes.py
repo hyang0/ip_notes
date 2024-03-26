@@ -21,6 +21,32 @@ ip_dict = dict()
 ip_history = set()
 
 
+def default_ipdata():
+    """默认IP数据文件
+    如果没有指定数据文件，则使用默认数据文件；
+    默认数据文件可能位置：
+    ./IP.pkl
+    ~/.ip_data/IP.pkl
+    如果当前目录有数据文件，则使用当前目录数据文件 ./IP.pkl
+    否则使用 ~/.ip_data/IP.pkl 作为默认数据文件
+    """
+    ipdata = 'IP.pkl'
+    if os.path.exists(ipdata):
+        return ipdata
+    if platform.system() == 'Windows':
+        home_dir = os.environ.get('USERPROFILE')
+        ipdata = os.path.join(home_dir, '.ip_notes', 'IP.pkl')
+    else:
+        home_dir = os.environ.get('HOME')
+        ipdata = os.path.join(home_dir, '.ip_notes', 'IP.pkl')
+    if os.path.exists(ipdata):
+        return ipdata
+    data_folder = os.path.dirname(os.path.abspath(ipdata))
+    if not os.path.exists(data_folder):
+        os.makedirs(data_folder)
+    return ipdata
+
+
 def is_ipv4(ip):
     """检查是否是IPV4"""
     try:
@@ -52,6 +78,8 @@ def foreach_dict(mydict):
 def load_data(file_path):
     """装载数据到字典"""
     global ip_dict, ip_history
+    if not file_path:
+        return
     if os.path.exists(file_path):
         with open(file_path, 'rb') as file:
             loaded_data = pickle.load(file)
@@ -312,11 +340,12 @@ if __name__ == '__main__':
     change_default_encoding()
 
     # 创建 ArgumentParser 对象
-    parser = argparse.ArgumentParser(description='IP 备注')
+    parser = argparse.ArgumentParser(description='IP 备注', formatter_class=argparse.RawTextHelpFormatter)
 
     # 添加命令行参数
     parser.add_argument('--ip_file', '-i', type=str, default='', help='IP 文件路径，文件内容格式：IP 备注')
-    parser.add_argument('--data_file', '-d', type=str, default='IP.pkl', help='数据文件路径，默认数据文件：IP.pkl')
+    parser.add_argument('--data_file', '-d', type=str, default='IP.pkl',
+                        help='数据文件路径\n默认数据文件查找顺序: \n  ./IP.pkl\n  ~/.ip_notes/IP.pkl\n')
     parser.add_argument('--interactive', '-a', action='store_true', help='读取管道中的内容，并进行IP替换')
     parser.add_argument('--list', '-l', action='store_true', help='显示IP字典中的内容')
     parser.add_argument('--erase', '-e', action='store_true', help='清空数据文件内容')
@@ -344,6 +373,8 @@ if __name__ == '__main__':
     search_text = args.search
     enable_summary = args.summary
 
+    if data_file == parser.get_default('data_file'):
+        data_file = default_ipdata()
     # 反序列化，加载数据到字典
     load_data(data_file)
 
