@@ -10,12 +10,13 @@ import platform
 from pprint import pprint
 import io
 import wcwidth
+import code
 
 # 版本信息
 version = '0.1'
 
 # IP 字典
-# 字典元素结构 ’192.168.1.1': ['备注1’， '备注2', ...]
+# 字典元素结构 ’192.168.1.1' : ['备注1’， '备注2', ...]
 ip_dict = dict()
 
 # IP 备注历史
@@ -25,6 +26,10 @@ ip_history = set()
 # IP 标签
 # 标签元素结构 ’192.168.1.1' : {'标签1’， '标签2', ...}
 ip_tag = dict()
+
+# 以标签为 key ， IP 为 value
+# '标签1' : ['192.168.1.1', '192.168.1.2', ...]
+tags = dict()
 
 def default_ipdata():
     """默认IP数据文件
@@ -346,8 +351,7 @@ def change_default_encoding():
 
 def summary(enable_tag=False):
     """统计IP分类"""
-    tags = dict()
-    global ip_dict, ip_tag
+    global ip_dict, ip_tag, tags
     if not enable_tag:
         for key, value in ip_dict.items():
             for tag in value:
@@ -403,6 +407,7 @@ if __name__ == '__main__':
     parser.add_argument('--search', '-s', type=str, default='', help='在字典中搜索IP')
     parser.add_argument('--summary', '-m', action='store_true', help='统计 IP 分类')
     parser.add_argument('--tag', '-t', action='store_true', help='将 IP文件 当作标签数据处理')
+    parser.add_argument('--debug', '-G', action='store_true', help='通过交互模式进行调试')
     parser.add_argument('--version', '-v', action='store_true', help='显示版本信息')
 
     # 解析命令行参数
@@ -469,3 +474,6 @@ if __name__ == '__main__':
 
     if args.version:
         print(f'ip_notes {version}')
+
+    if args.debug:
+        code.interact(local=locals())
