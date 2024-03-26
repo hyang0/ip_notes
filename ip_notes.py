@@ -15,11 +15,16 @@ import wcwidth
 version = '0.1'
 
 # IP 字典
+# 字典元素结构 ’192.168.1.1': ['备注1’， '备注2', ...]
 ip_dict = dict()
 
 # IP 备注历史
+# 集合元素结构 ('192.168.1.1', '备注1 备注2 ...')
 ip_history = set()
 
+# IP 标签
+# 标签元素结构 ’192.168.1.1' : {'标签1’， '标签2', ...}
+ip_tag = dict()
 
 def default_ipdata():
     """默认IP数据文件
@@ -77,24 +82,29 @@ def foreach_dict(mydict):
 
 def load_data(file_path):
     """装载数据到字典"""
-    global ip_dict, ip_history
+    global ip_dict, ip_history, ip_tag
     if not file_path:
         return
     if os.path.exists(file_path):
         with open(file_path, 'rb') as file:
             loaded_data = pickle.load(file)
             ip_dict, ip_history = loaded_data[0], loaded_data[1]
+            try:
+                # 新增加的字段
+                ip_tag = loaded_data[2]
+            except:
+                pass
 
 
 def save_data(file_path):
     """存盘"""
-    data = [ip_dict, ip_history]
+    data = [ip_dict, ip_history, ip_tag]
     # pprint(data)
     with open(file_path, 'wb') as file:
         pickle.dump(data, file)
 
 
-def insert_ip_note(file_path):
+def insert_ip_note(file_path, enable_tag=False):
     """装载原始数据文件"""
     global ip_dict, ip_history
 
@@ -119,6 +129,15 @@ def insert_ip_note(file_path):
             if not is_ipv4(k):
                 print("Warning: no ipv4: ", end='')
                 pprint(k)
+                line = f.readline()
+                continue
+
+            if enable_tag:
+                if k in ip_tag:
+                    for i in v:
+                        ip_tag[k].add(i)
+                else:
+                    ip_tag.update({k: set(v)})
                 line = f.readline()
                 continue
 
@@ -262,6 +281,26 @@ def sort_ip_history():
         ip = ip.ljust(15, ' ')
         print(f'{ip}    {note}')
 
+def sort_ip_tag():
+    """ ip 排序 """
+    ip_obj = list()
+    for key, value in ip_tag.items():
+        # 将IP地址字符串转换为ipaddress.IPv4Address对象
+        ip_obj.append(ipaddress.IPv4Address(key))
+
+    # 对IP地址对象列表进行排序
+    sorted_ips = sorted(ip_obj)
+
+    # 打印排序后的IP地址
+    for i in sorted_ips:
+        ip = str(i)
+        # tags = ' '.join(ip_tag[ip])
+
+        # ipv4 最宽15个字符
+        formatted_ip = ip.ljust(15, ' ')
+        for tag in ip_tag[ip]:
+            print(f'{formatted_ip}    {tag}')
+
 
 def dump_ip_current():
     """导出IP 备注信息"""
@@ -271,12 +310,13 @@ def dump_ip_current():
 
 def erase(data_file_path):
     """重置数据文件"""
-    global ip_dict, ip_history
+    global ip_dict, ip_history, ip_tag
     while True:
         user_input = input("请确认操作 (yes/no): ").lower()  # 将输入转换为小写，以便不区分大小写
         if user_input == 'yes':
             ip_dict = dict()
             ip_history = set()
+            ip_tag = dict()
             save_data(data_file_path)
             break
         elif user_input == 'no':
@@ -304,16 +344,24 @@ def change_default_encoding():
             sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
-def summary():
+def summary(enable_tag=False):
     """统计IP分类"""
     tags = dict()
-    global ip_dict
-    for key, value in ip_dict.items():
-        for tag in value:
-            if tag in tags.keys():
-                tags[tag].append(key)
-            else:
-                tags.update({tag: [key]})
+    global ip_dict, ip_tag
+    if not enable_tag:
+        for key, value in ip_dict.items():
+            for tag in value:
+                if tag in tags.keys():
+                    tags[tag].append(key)
+                else:
+                    tags.update({tag: [key]})
+    else:
+        for key, value in ip_tag.items():
+            for tag in value:
+                if tag in tags.keys():
+                    tags[tag].append(key)
+                else:
+                    tags.update({tag: [key]})
 
     sorted_items = sorted(tags.items(), key=lambda x: len(x[1]), reverse=True)
     for key, value in sorted_items:
@@ -351,8 +399,10 @@ if __name__ == '__main__':
     parser.add_argument('--erase', '-e', action='store_true', help='清空数据文件内容')
     parser.add_argument('--output_dict', '-od', action='store_true', help='输出IP字典信息')
     parser.add_argument('--output_history', '-oh', action='store_true', help='输出IP历史数据')
+    parser.add_argument('--output_tag', '-ot', action='store_true', help='输出IP标签信息')
     parser.add_argument('--search', '-s', type=str, default='', help='在字典中搜索IP')
     parser.add_argument('--summary', '-m', action='store_true', help='统计 IP 分类')
+    parser.add_argument('--tag', '-t', action='store_true', help='将 IP文件 当作标签数据处理')
     parser.add_argument('--version', '-v', action='store_true', help='显示版本信息')
 
     # 解析命令行参数
@@ -372,6 +422,8 @@ if __name__ == '__main__':
     enable_output_history = args.output_history
     search_text = args.search
     enable_summary = args.summary
+    enable_tag = args.tag
+    enable_output_tag = args.output_tag
 
     if data_file == parser.get_default('data_file'):
         data_file = default_ipdata()
@@ -380,7 +432,7 @@ if __name__ == '__main__':
 
     # 从文本文件中装载数据
     if os.path.exists(ip_file):
-        insert_ip_note(ip_file)
+        insert_ip_note(ip_file, enable_tag=enable_tag)
 
     # 从管道中读文件，替换IP为备注
     if interactive:
@@ -402,11 +454,14 @@ if __name__ == '__main__':
     if enable_output_history:
         sort_ip_history()
 
+    if enable_output_tag:
+        sort_ip_tag()
+
     if search_text:
         search_arg(search_text)
 
     if enable_summary:
-        summary()
+        summary(enable_tag=enable_tag)
 
     # 如果有文件输入，则存盘
     if ip_file:

@@ -2,6 +2,7 @@
 
 import sys
 import os
+import code
 
 # 获取当前脚本所在目录的上一级目录
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -28,3 +29,4 @@ if __name__ == '__main__':
     test1()
     print('#'*30)
     test2()
+    code.interact(local=locals())
